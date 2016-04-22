@@ -10,8 +10,8 @@ if(!$dbconnection){
     exit;
 }
 else{
-    //echo "success!";
+    echo "<!--success-->";
 }
 //close the database connection (will save memory)
-mysqli_connect=>close($dbconnection);
+//$dbconnection->close();
 ?>

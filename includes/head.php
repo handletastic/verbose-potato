@@ -1,4 +1,12 @@
-
+<?php
+include_once("dbconnection.php");
+function getCurrentPageName(){
+    $page = basename($_SERVER['PHP_SELF']);
+    $ln = strlen($page)-4;
+    return $page;
+}
+$pagetitle = getCurrentPageName(true);
+?>
 <!doctype html>
 <html>
     <head>
@@ -9,3 +17,4 @@
         <?php include("styles.php");?>
     </head>
     <body>
+<?php include("pageheader.php");?>
