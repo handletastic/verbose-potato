@@ -4,7 +4,7 @@ include("includes/head.php");
 <main class="main">
     <div class="container">
         <div class="row">
-            <h1>Test Page</h1>
+            <h2>Home Page</h2>
         </div>
     </div>
 </main>
