@@ -89,6 +89,7 @@ function getSubMenu($parent,$connection,$table){
     }
     return $subnavigation;
 }
+
 ?>
 
 <nav class="navbar navbar-default main-nav">
