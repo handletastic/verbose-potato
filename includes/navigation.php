@@ -1,33 +1,45 @@
 <?php
+
 /*function to retrieve the current page loaded. we will use this to
 determine which navigation items to be marked as "active" */
-//set table name
-$tablename = "pages";
-function getNavigationItems($level,$connection,$table){
-    $level=0;
+function getNavigationItems($startlevel,$connection,$table,$group){
+    $level=$startlevel;
     $navigation = array();
-    $query = "SELECT * FROM `$table` WHERE parentid='$level' ORDER BY 'order' ASC";
+    $query = "SELECT * FROM `$table` 
+    WHERE level='$level' 
+    AND pagesgroup='$group' 
+    AND published=1 
+    ORDER BY showorder ASC";
     $navresult = $connection->query($query);
     if($navresult->num_rows>0){
         $navstart = "<ul class=\"nav navbar-nav navbar-right\">";
         array_push($navigation,$navstart);
         while($row = $navresult->fetch_assoc()){
+            //the right hand side is the names of database columns
             $id = $row["id"];
             $name = $row["name"];
             $link = $row["link"];
-            $class = implode(" ",addClases($link));
-            $dropdowntest = strpos($class,"dropdown");
+            $pagetitle = $row["pagetitle"];
+            $icon = $row["icon_name"];
+            $showicon = $row["show_icon"];
+            $showname = $row["show_name"];
+            //get classes for the link
+            $class = addClases($link);
+            //if class is active (we are currently on this page)
             if($class=="active"){
-                $menuitem = "<li class=\"$class\"><a href=\"$link\">$name</a>";
+                $menuitem = "<li class=\"$class\">".
+                addIconToLink($link,$name,$showname,$showicon,$icon);
             }
+            //if the item has a dropdown, add these extra attributes (part of bootstrap dropdown menu)
             elseif($class=="dropdown" || $class=="active dropdown"){
                 $menuitem = "<li class=\"$class\">
                 <a class=\"dropdown-toggle\" 
                 data-toggle=\"dropdown\" href=\"$link\">$name
                 <span class=\"caret\"></span></a>";
             }
+            //otherwise just render as normal menu item
             else{
-                $menuitem = "<li><a href=\"$link\">$name</a>";
+                $menuitem = "<li>".addIconToLink($link,$name,$showname,$showicon,$icon);
             }
             array_push($navigation,$menuitem);
             //get the submenu, if any
@@ -39,14 +51,18 @@ function getNavigationItems($level,$connection,$table){
             }
             array_push($navigation,"</li>");
         }
+        //return the navigation elements
         return $navigation;
+        //close the database connection (saves memory)
+        $connection->close();
     }
     else{
-        //no result
+        //no navigation found
     }
 }
 
 function addClases($link){
+    //get the current URL or page file name
     $current = getCurrentPage();
     $classes = array();
     if($link==$current["url"] || $link==$current["page"] || $link==$current["file"]){
@@ -55,10 +71,8 @@ function addClases($link){
     elseif($link=="#" || $link==""){
         array_push($classes,"dropdown");
     }
-    return $classes;
+    return implode(" ",$classes);
 }
-
-function addAttributes($link){}
 
 function getSubMenu($parent,$connection,$table){
     $subnavigation = array();
@@ -73,7 +87,9 @@ function getSubMenu($parent,$connection,$table){
             $link = $row["link"];
             $class = implode(" ",addClases($link));
             if($class){
-                $submenuitem = "<li class=\"$class\"><a href=\"$link\">$name</a></li>";
+                $submenuitem = "<li class=\"$class\">
+                <a href=\"$link\">$name</a>
+                </li>";
             }
             else{
                 $submenuitem = "<li><a href=\"$link\">$name</a></li>";
@@ -85,11 +101,43 @@ function getSubMenu($parent,$connection,$table){
        
     }
     else{
-        array_push($subnavigation,"empty");
+        array_push($subnavigation,"<!--empty-->");
     }
     return $subnavigation;
+    $connection->close();
 }
 
+function addIconToLink($link,$name,$showname,$showicon,$icon){
+    if($showicon && $showname){
+        if($icon){
+            $linkwithicon = "<a href=\"$link\"><i class=\"$icon\"></i>$name</a>";
+        }
+    }
+    elseif($showicon && !$showname){
+        if($icon){
+            $linkwithicon = "<a href=\"$link\"><i class=\"$icon\"></i></a>";
+        }
+    }
+    elseif(!$showicon && $showname){
+        $linkwithicon = "<a href=\"$link\">$name</a>";
+    }
+    return $linkwithicon;
+}
+
+function checkLogin(){
+    if($_SESSION["user"]){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function checkAdmin(){
+    if($_SESSION["admin"]){
+        return true;
+    }
+}
 ?>
 
 <nav class="navbar navbar-default main-nav">
@@ -105,7 +153,8 @@ function getSubMenu($parent,$connection,$table){
         </div>
         <div class="collapse navbar-collapse" id="main-menu">
             <?php
-            $nav = getNavigationItems(0,$dbconnection,$tablename);
+            //render navigation group 1 (main navigation)
+            $nav = getNavigationItems(0,$dbconnection,$tablename,1);
             echo implode("",$nav);
             ?>
             <form class="navbar-form navbar-right" 
@@ -127,11 +176,10 @@ function getSubMenu($parent,$connection,$table){
 </nav>
 <nav class="navbar user-nav">
     <div class="container-fluid">
-        <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Admin</a></li>
-            <li><a href="#">Account</a></li>
-            <li><a href="#">Login</a></li>
-            <li><a href="#">Logout</a></li>
-        </ul>
+        <?php
+        //we render navigation that belongs in group 2
+        $usernav = getNavigationItems(0,$dbconnection,$tablename,2);
+        echo implode($usernav);
+        ?>
     </div>
 </nav>
