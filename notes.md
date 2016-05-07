@@ -5,7 +5,7 @@ In this file notes are added as the project progresses to illustrate the develop
 This is the main directory of the website
 ###index.php
 This is the main index file of the website
-###mail.php
+####mail.php
 ###notes.md
 ###register.php
 ###search_result.php
