@@ -15,8 +15,17 @@
 .main-nav i,.user-nav i{
     padding-right:12px;
 }
+.ajax-form{
+    margin-bottom: 20px;
+}
 .spinner{
-    margin-left:10px;
+    margin-left:5px;
+}
+.message{
+    transition:opacity 1s;
+}
+.message.close{
+    opacity:0;
 }
 .main{
     min-height:550px;

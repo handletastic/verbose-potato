@@ -42,21 +42,6 @@ function getPageTitle($connection,$table){
         //exit();
     }
 }
-// print_r(getCurrentPage());
-// echo "<br>";
-// $table = "pages";
-// $current = getCurrentPage();
-// $currentpage = $current["url"];
-// //$currentpage = "index.php";
-// //echo $currentpage;
-// $pquery = "SELECT pagetitle FROM $table WHERE link='$currentpage'";
-// $presult = $dbconnection->query($pquery);
-// if($presult->num_rows > 0){
-//     while($prow = $presult->fetch_assoc()){
-//         $pagetitle = $prow["pagetitle"];
-//         echo $pagetitle;
-//     }
-// }
 
 $sectionname = getPageTitle($dbconnection,$tablename);
 ?>
