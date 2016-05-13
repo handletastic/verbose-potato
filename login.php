@@ -26,11 +26,12 @@ include("includes/head.php");
                         name="password" 
                         class="form-control" 
                         id="password" 
-                        placeholder="Your Password">
+                        placeholder="Your Password"
+                        required>
                         <!--add token as hidden field-->
                         <input type="hidden" name="user-token" id="user-token" value="<?php echo $_SESSION["token"];?>">
                     </div>
-                    <button type="submit" class="btn btn-default btn-register">Log in</button>
+                    <button type="submit" class="btn btn-default btn-login">Log in</button>
                 </form>
             </div>
         </div>
