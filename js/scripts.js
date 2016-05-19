@@ -22,6 +22,7 @@ $(document).ready(function(){
          'user-token': $('input[name=user-token]').val()
       };
       if(submitting==false){
+         removeMessage("#user-registration");
          addSpinner(event);
          submitting=true;
          $.ajax({
@@ -75,6 +76,7 @@ $(document).ready(function(){
             if(data.success){
                //add alert to the form
                showMessage("#user-login",true,"welcome back!");
+               updateNavigation(0,2,"user-nav");
                
             }
             else if(data.errors){
@@ -108,10 +110,8 @@ function showMessage(element,success,message){
 }
 
 function removeMessage(element){
-   var target = $(element).parents().find(".alert");
-   $(target).addClass("close").on("transitionend",function(){
-      $(target).remove();
-   });
+   var target = $(element).find(".alert");
+   $(target).remove();
 }
 
 function showErrorCode(code){
@@ -150,4 +150,26 @@ function showErrorCode(code){
       default:
          break;
    }
+}
+//this function relies on get-navigation.php in the ajax directory
+function updateNavigation(navlevel,navgroup,navelement){
+   var navdata = {
+      'level' : navlevel,
+      'group' : navgroup
+   };
+   $.ajax({
+      type        : 'POST',
+      url         : 'ajax/get-navigation.php',
+      data        : navdata,
+      dataType    : 'json',
+      encode      : true
+   })
+   .done(function(data){
+      if(data.success){
+         console.log(data);
+         var nav = data.navigation;
+         elm = "."+navelement;
+         $(elm).html(nav);
+      }
+   });
 }
