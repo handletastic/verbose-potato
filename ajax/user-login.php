@@ -19,25 +19,24 @@ if(count($_POST)>0){
         //in the query and auth could fail if any character is removed 
         //in the process
         $clean_email = filter_var($email,FILTER_SANITIZE_EMAIL);
-        $query = "SELECT email,userid,password,active FROM users WHERE email='$clean_email'";
+        $query = "SELECT email,userid,password,active,admin FROM users WHERE email='$clean_email'";
         $result = $dbconnection->query($query);
         if($result->num_rows>0){
             //create variables from database data
             $dbdata = $result->fetch_assoc();
-            $userdata["email"] = $dbdata["email"];
-            $userdata["password"] = $dbdata["password"];
-            $userdata["userid"] = $dbdata["userid"];
-            $userdata["active"] = $dbdata["active"];
             //if the user account is not active send error back
-            if(!$userdata["active"]){
+            if($dbdata["active"]==false){
                 returnErrorMessage($data,$errors,8,"account inactive");
             }
             //verify password
-            if(password_verify($password,$userdata["password"])){
+            if(password_verify($password,$dbdata["password"])){
                 //set data for last login
-                insertUserLoginDate($userdata["email"],$dbconnection);
+                insertUserLoginDate($dbdata["email"],$dbconnection);
                 //create session variable
-                $_SESSION[];
+                $_SESSION["userid"]=$dbdata["userid"];
+                if($dbdata["admin"]){
+                    $_SESSION["admin"] = 1;
+                }
                 $data["success"] = true;
                 echo returnData($data,$errors);
             }
@@ -53,6 +52,9 @@ if(count($_POST)>0){
     else{
         returnErrorMessage($data,$errors,7,"authentication failed");
     }
+}
+else{
+    exit();
 }
 
 //------------Functions
