@@ -22,5 +22,5 @@ PHP files in this directory handles ajax requests from the client side, done via
 ##directory: includes
 Files in this directory are included in other files.
 
-###dbconnection.php
+####dbconnection.php
 Include this file to when database connection is needed. For this project, this file is included in head.php, which is the head section of every html document in this website.
