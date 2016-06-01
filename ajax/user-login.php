@@ -36,6 +36,7 @@ if(count($_POST)>0){
                 $_SESSION["userid"]=$dbdata["userid"];
                 if($dbdata["admin"]){
                     $_SESSION["admin"] = 1;
+                    $data["admin"] = 1;
                 }
                 $data["success"] = true;
                 echo returnData($data,$errors);

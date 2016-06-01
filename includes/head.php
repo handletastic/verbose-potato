@@ -3,47 +3,21 @@
 session_start();
 //include dbconnection script
 include_once("dbconnection.php");
-//function to generate a random token to secure sessions
-function generateToken(){
-    $seed = openssl_random_pseudo_bytes(16);
-    $token = bin2hex($seed);
-    return $token;
-}
+//include global functions
+include_once("functions.php");
 //set token as a session variable if it does not exist already
 if(!$_SESSION["token"]){
     $_SESSION["token"]=generateToken();
+    //$sessiontoken = $_SESSION["token"];
 }
 
 //set table name from where the data will be retrieved
 $tablename = "pages";
 
-function getCurrentPage(){
-    $current = array();
-    $current["url"] = basename($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-    $current["page"] = parse_url($current["url"])["path"];
-    $current["file"] = basename($_SERVER['PHP_SELF']);
-    $current["request"] = basename($_SERVER['REQUEST_URI']);
-    return $current;
-}
-
-function getPageTitle($connection,$table){
-    $current = getCurrentPage();
-    $currentpage = basename($current["url"]);
-    $query = "SELECT pagetitle FROM $table WHERE link='$currentpage'";
-    $result = $connection->query($query);
-    if($result->num_rows>0){
-        while($row = $result->fetch_assoc()){
-            $pagetitle = $row["pagetitle"];
-            return $pagetitle;
-        }
-    }
-    else{
-        return "<!--empty-->";
-        //exit();
-    }
-}
 
 $sectionname = getPageTitle($dbconnection,$tablename);
+//get the content of the page
+$content = getPageContent($dbconnection);
 ?>
 <!doctype html>
 <html>
@@ -55,6 +29,7 @@ $sectionname = getPageTitle($dbconnection,$tablename);
         <?php 
         include("styles.php");
         //add token into page as a javascript variable
+        $sessiontoken = $_SESSION["token"];
         echo "<script>var token =\"$sessiontoken\";</script>";
         ?>
     </head>

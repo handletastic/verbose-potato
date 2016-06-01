@@ -12,6 +12,9 @@
 .user-nav li>a{
     color:#888888;
 }
+.user-greeting{
+    margin-left:0;
+}
 .main-nav i,.user-nav i{
     padding-right:12px;
 }
@@ -21,10 +24,10 @@
 .spinner{
     margin-left:5px;
 }
-.message{
+.alert{
     transition:opacity 1s;
 }
-.message.close{
+.alert.close{
     opacity:0;
 }
 .main{
@@ -48,4 +51,38 @@
 .social a:hover{
     color:#333;
     background-color:lightblue;
+}
+.top-nav{
+    margin-bottom: 0;
+}
+
+.store-overlay{
+    position: absolute;
+    width:100%;
+    min-height: 500px;
+    height: 100%;
+    background-color:rgba(0,0,0,0.3);
+    opacity: 0;
+    transition:opacity 1s;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+}
+.store-overlay.visible{
+    opacity: 1;
+}
+.store-products{
+    position: relative;
+    min-height: 500px;
+}
+.product-image{
+    width:100%;
+    margin-bottom: 20px;
+}
+.product-item{
+    margin-bottom:20px;
+}
+.buy-btn i,.wish-btn i{
+    padding-right:5px;
 }

@@ -310,4 +310,23 @@ function getUserName($userid,$connection){
       }
    }
 }
+
+//check if the user is admin
+function checkAdmin($userid,$connection){
+   $query = "SELECT userid,admin FROM users WHERE userid='$userid'";
+   $result = $connection->query($query);
+   if($result->num_rows > 0){
+      $row = $result->fetch_assoc();
+      $id = $row["userid"];
+      $admin = $row["admin"];
+      if($id===$userid){
+         $connection->close();
+         return true;
+      }
+      else{
+         $connection->close();
+         return false;
+      }
+   }
+}
 ?>

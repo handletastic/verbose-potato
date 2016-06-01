@@ -1,5 +1,7 @@
 <?php 
 include("includes/head.php");
+
+//var_dump($content);
 ?>
 <main class="main">
     <div class="container">
@@ -10,6 +12,15 @@ include("includes/head.php");
         </div>
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
+                <?php
+                if(count($content)){
+                    echo "<p>".$content[0]['content']."</p>";
+                }
+                ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
                 <form id="password-reset" class="ajax-form">
                     <div class="form-group">
                         <label for="email">Email address</label>
@@ -17,21 +28,12 @@ include("includes/head.php");
                         name="email" 
                         class="form-control" 
                         id="email" 
-                        placeholder="Your Email Address"
+                        placeholder="Your email address"
                         required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Retype your email</label>
-                        <input type="email" 
-                        name="email2" 
-                        class="form-control" 
-                        id="email2" 
-                        placeholder="Retype your email">
-                        <!--add session token as hidden field to help prevent bots registering
-                        users automatically-->
                         <input type="hidden" name="user-token" id="user-token" value="<?php echo $_SESSION["token"];?>">
                     </div>
-                    <button type="submit" class="btn btn-default btn-register">Reset Your Password</button>
+                   
+                    <button type="submit" class="btn btn-default btn-reset">Reset Your Password</button>
                 </form>
             </div>
         </div>
