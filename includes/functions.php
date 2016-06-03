@@ -16,7 +16,7 @@ function getCurrentPage(){
 
 function getPageTitle($connection,$table){
     $current = getCurrentPage();
-    $currentpage = basename($current["url"]);
+    $currentpage = basename($current["file"]);
     $query = "SELECT pagetitle,id FROM $table WHERE link='$currentpage'";
     $result = $connection->query($query);
     if($result->num_rows>0){
@@ -328,5 +328,69 @@ function checkAdmin($userid,$connection){
          return false;
       }
    }
+}
+
+//get products from products table
+function getProduct($connection,$id){
+    $query = "SELECT id,sku,stocklevel,name,description,sellprice,special,saleprice 
+    FROM products WHERE published=true AND id='$id'";
+    $result = $connection->query($query);
+    if($result->num_rows >0){
+        $row = $result->fetch_assoc();
+        return($row);
+        $connection->close();
+    }
+}
+
+function getProductImages($connection,$productid){
+    $query = "SELECT title,imagefile,caption FROM images WHERE productid='$productid' AND published=true";
+    $result = $connection->query($query);
+    $images = array();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            $image = array();
+            $image["id"] = $row["id"];
+            $image["title"] = $row["title"];
+            $image["caption"] = $row["caption"];
+            $image["file"] = $row["imagefile"];
+            array_push($images,$image);
+        }
+        return $images;
+        $connection->close();
+    }
+    
+}
+
+function getProductFilter($connection,$filter){
+    switch($filter){
+        case "colour":
+            $table = "color";
+            break;
+        case "categories":
+            $table = "categories";
+            break;
+        case "brands":
+            $table = "brands";
+            break;
+        default:
+            break;
+    }
+    $query = "SELECT id,name FROM $table";
+    $result = $connection->query($query);
+    $categories = array();
+    $all = array("id"=>0,"name"=>"all $table");
+    array_push($categories,$all);
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            array_push($categories,$row);
+        }
+        return $categories;
+    }
+    $connection->close();
+}
+//generate a date and time
+function generateDateTime(){
+    $date = date("Y-m-d H:i:s");
+    return $date;
 }
 ?>
