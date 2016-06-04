@@ -12,6 +12,10 @@ if(count($_POST)>0){
    $usertoken = $_POST["token"];
    $categoryid = $_POST["category"];
    $brandid = $_POST["brand"];
+   $stocklevel = $_POST["stocklevel"];
+   $special = $_POST["special"];
+   $featured = $_POST["featured"];
+   $limit = $_POST["limit"];
    //check if client token matches session token
    if($usertoken==$_SESSION["token"]){
       $basicquery="SELECT products.id AS productid,
@@ -28,16 +32,26 @@ if(count($_POST)>0){
          INNER JOIN images ON products.id = images.productid
          WHERE products.published=true";
       if($categoryid && $brandid==0){
-         $qualifier="AND productscategories.categoryid='$categoryid'";
+         $qualifier1="AND productscategories.categoryid='$categoryid'";
       }
       elseif($categoryid==0 && $brandid){
-         $qualifier="AND productsbrands.brandid='$brandid'";
+         $qualifier1="AND productsbrands.brandid='$brandid'";
       }
       elseif($categoryid && $brandid){
-         $qualifier="AND productsbrands.brandid='$brandid' 
+         $qualifier1="AND productsbrands.brandid='$brandid' 
          AND productscategories.categoryid='$categoryid'";
       }
-      $query = $basicquery." ".$qualifier." GROUP BY products.id ORDER BY productname ASC";
+      //add qualifiers for stocklevel and special
+      if($special==1){
+         $qualifier2="AND special=true";
+      }
+      if($stocklevel==1){
+         $qualifier3="AND stocklevel>0";
+      }
+      //concatenate basic query and qualifiers
+      $query = $basicquery." ".$qualifier1." "
+      .$qualifier2." "
+      .$qualifier3." GROUP BY products.id ORDER BY productname ASC";
       $result = $dbconnection->query($query);
       $products = array();
       if($result->num_rows > 0){

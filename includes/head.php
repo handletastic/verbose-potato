@@ -10,8 +10,15 @@ if(!$_SESSION["token"]){
     $_SESSION["token"]=generateToken();
     //$sessiontoken = $_SESSION["token"];
 }
-
-//set table name from where the data will be retrieved
+if(checkSessionAge($dbconnection,3000)==true){
+    unset($_SESSION["userid"]);
+    $redirect = "index.php";
+    header('Location: '.$redirect);
+}
+//this function is to log user activity, it is part of functions.php file
+logActivity($dbconnection);
+//set table name from where the data for the page will be retrieved
+// also used for navigation
 $tablename = "pages";
 
 
@@ -30,7 +37,7 @@ $content = getPageContent($dbconnection);
         include("styles.php");
         //add token into page as a javascript variable
         $sessiontoken = $_SESSION["token"];
-        echo "<script>var token =\"$sessiontoken\";</script>";
+        echo "<script> var token =\"$sessiontoken\";</script>";
         ?>
     </head>
     <body>

@@ -83,6 +83,46 @@
 .product-item{
     margin-bottom:20px;
 }
+.special-mark{
+    display: inline-block;
+    margin-left:15px;
+    font-size:20px;
+    font-weight: 200;
+    color:red;
+}
+.product-button-bar .qty{
+   max-width: 60px; 
+}
 .buy-btn i,.wish-btn i{
     padding-right:5px;
+}
+.price{
+    font-size:18px;
+}
+.normal-price{
+    font-size:20px;
+}
+.dollar::before{
+    display:inline-block;
+    padding-right:5px;
+}
+.dollar::before{
+    /*the dollar sign*/
+    content:"A\0024";
+}
+.special-price{
+    min-width:80px;
+    min-height: 80px;
+    max-width:120px;
+    background-color:red;
+    color:white;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    border-radius: 0 20px 0 20px;
+}
+.cross{
+    text-decoration: line-through;
+    font-weight: 200;
+    color:#999999;
 }
