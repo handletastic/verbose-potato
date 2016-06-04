@@ -15,6 +15,7 @@ if(checkSessionAge($dbconnection,3000)==true){
     $redirect = "index.php";
     header('Location: '.$redirect);
 }
+//echo checkSessionAge($dbconnection,3000);
 //this function is to log user activity, it is part of functions.php file
 logActivity($dbconnection);
 //set table name from where the data for the page will be retrieved

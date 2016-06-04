@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once("../includes/dbconnection.php");
+include_once("../includes/functions.php");
 //session token
 $token = $_SESSION["token"];
 //store errors and error messages
@@ -32,12 +33,15 @@ if(count($_POST)>0){
             if(password_verify($password,$dbdata["password"])){
                 //set data for last login
                 insertUserLoginDate($dbdata["email"],$dbconnection);
+                //update user activity column to prevent immediate logout
+                
                 //create session variable
                 $_SESSION["userid"]=$dbdata["userid"];
                 if($dbdata["admin"]){
                     $_SESSION["admin"] = 1;
                     $data["admin"] = 1;
                 }
+                logActivity($dbconnection);
                 $data["success"] = true;
                 echo returnData($data,$errors);
             }
@@ -66,7 +70,7 @@ function insertUserLoginDate($email,$connection){
     $date = date("Y-m-d H:i:s");
     $query = "UPDATE users SET lastaccess='$date' WHERE email='$email'";
     $connection->query($query);
-    $connection->close();
+    //$connection->close();
 }
 
 //function to return data to ajax script

@@ -423,7 +423,11 @@ function checkSessionAge($connection,$maxtimelapsed){
             //convert last activity and now to time using strtotime()
             $lapsed = strtotime($now) - strtotime($last);
             if($lapsed>$maxtimelapsed){
-                return true;
+                return $lapsed;
+            }
+            else{
+                //return false;
+                return $lapsed;
             }
         }
     }
