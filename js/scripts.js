@@ -94,13 +94,23 @@ $(document).ready(function(){
       }
       
    });
+   //these are for the store section
+   //if category selector is changed, call function filterProducts()
    $("#category-select").on("change",function(event){
-      //console.log($(event.target).val());
       filterProducts(event);
    });
+   //if brand selector is changed, call function filterProducts()
    $("#brand-select").on("change",function(event){
       filterProducts(event);
    });
+   //if a checkbox for stock level is selected
+   $("#stocklevel").on("change",function(event){
+      filterProducts(event);
+   });
+   $("#special").on("change",function(event){
+      filterProducts(event);
+   });
+   //if an element with class 'store-products' exist
    if($(".store-products").length){
       loadProducts();
    }
@@ -190,14 +200,27 @@ function updateNavigation(navlevel,navgroup,navelement){
       }
    });
 }
-
+//this function returns an object with data from the store view filter form
+//in store.php file
+function getStoreViewFilterData(){
+   var formdata = {
+      'category' : $('#category-select option:selected').val(),
+      'brand' : $('#brand-select option:selected').val(),
+      'stocklevel' : $('#stocklevel:checked').val(),
+      'special' : $('#special:checked').val(),
+      'token' : token
+   }
+   if(formdata.special==null){
+      formdata.special = 0;
+   }
+   if(formdata.stocklevel==null){
+      formdata.stocklevel = 0;
+   }
+   return formdata;
+}
+//this function gets called to load products into the store.php page.
 function loadProducts(){
-   var usertoken = token;
-   var ProductData = {
-      'category' : 0,
-      'brand' : 0,
-      'token' : usertoken
-   };
+   var ProductData = getStoreViewFilterData();
    console.log(ProductData);
    $.ajax({
       type        : 'POST',
@@ -225,14 +248,7 @@ function loadProducts(){
 //this function is used to load products when filtering is used in the store
 //this program depends on get-products.php in ajax directory
 function filterProducts(evt){
-   //toggleVisibility(".store-overlay");
-   //get values of filters
-   var usertoken = token;
-   var SelectorsData = {
-      'category' : $('#category-select option:selected').val(),
-      'brand' : $('#brand-select option:selected').val(),
-      'token' : usertoken
-   };
+   var SelectorsData = getStoreViewFilterData();
    console.log(SelectorsData);
    $.ajax({
       type        : 'POST',
@@ -247,7 +263,7 @@ function filterProducts(evt){
          $(".store-products").html("");
          var lg = data.products.length;
          for(i=0;i<lg;i++){
-            renderProduct("store-products",data.products[i]);
+            renderProduct("store-products",data.products[i],i);
          }
       }
       else{
@@ -257,31 +273,41 @@ function filterProducts(evt){
       }
    });
 }
-function toggleVisibility(overlay){
-   $(overlay).toggleClass("visible");
-}
 
-function renderProduct(elm,product){
+function renderProduct(elm,product,count){
    var container = $("[class='elm']");
    var id = "#"+product.productid;
    //path to the product image directory (the forward slash has to be escaped)
    var imagedir = 'products\/';
    //the product container
-   var product = 
+   var productelm = 
    '<div id="'+product.productid+'" class="col-md-4 col-xs-6 product-item">'+
    '<h4>'+product.productname+'</h4>'+
    '<a href="product-detail.php?id='+product.productid+'">'+
    '<img class="product-image" src="'+imagedir+'default.png" data-image="'+product.productimage+'"></a>'+
+   '<div class="price-bar"><span class="dollar price normal-price">'+
+   product.productprice+'</span></div>'+
    '<div class="product-button-bar">'+
+   '<form class="form-inline">'+
    '<button class="btn btn-default buy-btn" data-id="'+product.productid
-   +'"><i class="fa fa-shopping-bag"></i>Buy It</button>'+
+   +'"><i class="fa fa-shopping-bag"></i><span class="hidden-sm">Buy It</span></button>'+
+   '<input class="form-control qty" type="number" value="1">'+
    '<button class="btn btn-default wish-btn" data-id="'+product.productid
-   +'"><i class="fa fa-heart"></i>Fave It</button>'+
+   +'"><i class="fa fa-heart"></i><span class="hidden-sm">Fave It</span></button>'+
+   '</form>'+
    '</div></div>';
-   $(".store-products").append(product);
+   //add the product to store container in store.php
+   $("."+elm).append(productelm);
    var image=imagedir+$(id+" .product-image").data("image");
+   //wait 500ms (1/2 sec) before loading each image
    setTimeout(function(){
      $(id+" img").attr("src",image); 
    },500);
+   //if product is on special, 
+   if(product.special==1){
+      var specialmark='<span class="dollar special-mark">'+product.saleprice+'</span>';
+      $("#"+product.productid+" .price-bar").append(specialmark);
+      $("#"+product.productid+" .normal-price").addClass("cross");
+   }
 }
 

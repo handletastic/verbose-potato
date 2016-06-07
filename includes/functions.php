@@ -390,7 +390,46 @@ function getProductFilter($connection,$filter){
 }
 //generate a date and time
 function generateDateTime(){
-    $date = date("Y-m-d H:i:s");
+    $date = new DateTime("now", new DateTimeZone('Australia/Sydney') );
+    $date = $date->format("Y-m-d H:i:s");
     return $date;
+}
+//function to log user activity, updated every page load
+function logActivity($connection){
+    //if user is logged in
+    if($_SESSION["userid"]){
+        $userid = $_SESSION["userid"];
+        $date = generateDateTime();
+        $query = "UPDATE users SET lastactivity='$date' WHERE userid='$userid'";
+        if($connection->query($query)){
+            //successful
+        }
+    }
+}
+
+//this function unsets user session (log user out) after a certain amount of time
+// has lapsed since last activity
+function checkSessionAge($connection,$maxtimelapsed){
+    //if user is logged in
+    if($_SESSION["userid"]){
+        $userid = $_SESSION["userid"];
+        //generate date time for now
+        $now = generateDateTime();
+        $query = "SELECT lastactivity FROM users WHERE userid='$userid'";
+        $result = $connection->query($query);
+        if($result->num_rows>0){
+            $row = $result->fetch_assoc();
+            $last = $row["lastactivity"];
+            //convert last activity and now to time using strtotime()
+            $lapsed = strtotime($now) - strtotime($last);
+            if($lapsed>$maxtimelapsed){
+                return $lapsed;
+            }
+            else{
+                //return false;
+                return $lapsed;
+            }
+        }
+    }
 }
 ?>
