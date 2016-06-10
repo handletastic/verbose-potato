@@ -10,22 +10,27 @@ if(!$_SESSION["token"]){
     $_SESSION["token"]=generateToken();
     //$sessiontoken = $_SESSION["token"];
 }
-if(checkSessionAge($dbconnection,3000)==true){
-    unset($_SESSION["userid"]);
+
+
+if(checkSessionAge($dbconnection,3000,false)==true){
+    logOutUser();
     $redirect = "index.php";
     header('Location: '.$redirect);
 }
+
 //echo checkSessionAge($dbconnection,3000);
 //this function is to log user activity, it is part of functions.php file
 logActivity($dbconnection);
+
 //set table name from where the data for the page will be retrieved
 // also used for navigation
 $tablename = "pages";
 
-
 $sectionname = getPageTitle($dbconnection,$tablename);
-//get the content of the page
+//get the content of the current page
 $content = getPageContent($dbconnection);
+//enable the following to debug session variables
+// print_r($_SESSION);
 ?>
 <!doctype html>
 <html>

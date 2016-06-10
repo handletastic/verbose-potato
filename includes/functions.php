@@ -70,7 +70,7 @@ function renderPageContent($pagecontent,$index,$element){
     }
     return $text;
 }
-
+//this function returns navigation items in a ul without navclass
 function getNavigationItemsAjax($startlevel,$connection,$table,$group){
     $level=$startlevel;
     $navigation = array();
@@ -82,8 +82,6 @@ function getNavigationItemsAjax($startlevel,$connection,$table,$group){
     ORDER BY showorder ASC";
     $navresult = $connection->query($query);
     if($navresult->num_rows>0){
-        // $navstart = "<ul class=\"nav navbar-nav navbar-right\">";
-        // array_push($navigation,$navstart);
         while($row = $navresult->fetch_assoc()){
             //the right hand side is the names of database columns
             $id = $row["id"];
@@ -142,6 +140,10 @@ function getNavigationItemsAjax($startlevel,$connection,$table,$group){
                 $menuitem = "<li>".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
                 array_push($navigation,$menuitem);
             }
+            elseif($link=="shoppingcart.php"){
+                $menuitem = "<li class=\"shoppingcart $class\">".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
+                array_push($navigation,$menuitem);
+            }
         }
         //return the navigation elements
         return $navigation;
@@ -150,7 +152,7 @@ function getNavigationItemsAjax($startlevel,$connection,$table,$group){
     }
 }
 
-function getNavigationItems($startlevel,$connection,$table,$group,$navclass){
+function getNavigationItems($startlevel,$connection,$table,$group,$navclass=""){
     $level=$startlevel;
     $navigation = array();
     //table name is defined in head.php
@@ -175,8 +177,9 @@ function getNavigationItems($startlevel,$connection,$table,$group,$navclass){
             $needlogin = $row["needlogin"];
             $admin = $row["admin"];
             //get classes for the link
+            $class = addClases($link);
             if($needlogin==0 && $link!="login.php" && $link!="register.php"){
-                $class = addClases($link);
+                
                 //if class is active (ie we are currently on this page)
                 if($class=="active"){
                     $menuitem = "<li class=\"$class\">".
@@ -206,21 +209,21 @@ function getNavigationItems($startlevel,$connection,$table,$group,$navclass){
             }
             //only add these menuitem if user is logged in
             elseif($needlogin && $_SESSION["userid"] && $admin==0){
-                $menuitem = "<li>".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
+                $menuitem = "<li class=\"$class\">".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
                 array_push($navigation,$menuitem);
             }
             //if page requires login and admin privilege and user is logged in and is an admin
             elseif($needlogin && $admin && $_SESSION["userid"] && $_SESSION["admin"]){
-                $menuitem = "<li>".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
+                $menuitem = "<li class=\"$class\">".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
                 array_push($navigation,$menuitem);
             }
             //if the nav item is login.php and user is not logged in
             elseif($link=="login.php" && !$_SESSION["userid"]){
-                $menuitem = "<li>".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
+                $menuitem = "<li class=\"$class\">".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
                 array_push($navigation,$menuitem);
             }
             elseif($link=="register.php" && !$_SESSION["userid"]){
-                $menuitem = "<li>".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
+                $menuitem = "<li class=\"$class\">".addIconToLink($link,$name,$showname,$showicon,$icon)."</li>";
                 array_push($navigation,$menuitem);
             }
         }
@@ -237,6 +240,9 @@ function addClases($link){
     $classes = array();
     if($link==$current["url"] || $link==$current["page"] || $link==$current["file"]){
         array_push($classes,"active");
+    }
+    elseif($link=="register.php"){
+        array_push($classes,"shopping-cart");
     }
     elseif($link=="#" || $link==""){
         array_push($classes,"dropdown");
@@ -280,17 +286,20 @@ function getSubMenu($parent,$connection,$table){
 function addIconToLink($link,$name,$showname,$showicon,$icon){
     if($showicon && $showname){
         if($icon){
-            $linkwithicon = "<a href=\"$link\"><i class=\"$icon\"></i>$name</a>";
+            $linkwithicon = "<a href=\"$link\"><i class=\"$icon\"></i>$name";
         }
     }
     elseif($showicon && !$showname){
         if($icon){
-            $linkwithicon = "<a href=\"$link\"><i class=\"$icon\"></i></a>";
+            $linkwithicon = "<a href=\"$link\"><i class=\"$icon\"></i>";
         }
     }
     elseif(!$showicon && $showname){
-        $linkwithicon = "<a href=\"$link\">$name</a>";
+        $linkwithicon = "<a href=\"$link\">$name";
     }
+    
+    //close link
+    $linkwithicon = $linkwithicon."<span class=\"badge\"></span></a>";
     return $linkwithicon;
 }
 
@@ -401,15 +410,13 @@ function logActivity($connection){
         $userid = $_SESSION["userid"];
         $date = generateDateTime();
         $query = "UPDATE users SET lastactivity='$date' WHERE userid='$userid'";
-        if($connection->query($query)){
-            //successful
-        }
+        $connection->query($query);
     }
 }
 
 //this function unsets user session (log user out) after a certain amount of time
 // has lapsed since last activity
-function checkSessionAge($connection,$maxtimelapsed){
+function checkSessionAge($connection,$maxtimelapsed,$returnlapsed){
     //if user is logged in
     if($_SESSION["userid"]){
         $userid = $_SESSION["userid"];
@@ -423,13 +430,47 @@ function checkSessionAge($connection,$maxtimelapsed){
             //convert last activity and now to time using strtotime()
             $lapsed = strtotime($now) - strtotime($last);
             if($lapsed>$maxtimelapsed){
-                return $lapsed;
+                if($returnlapsed){
+                    return $lapsed;
+                }
+                else{
+                    return true;
+                }
             }
             else{
-                //return false;
-                return $lapsed;
+                if($returnlapsed){
+                    return $lapsed;
+                }
+                else{
+                    return false;
+                }
             }
         }
     }
 }
+
+function generateUserId(){
+    $prefix = "user";
+    $userid = md5(uniqid($prefix,TRUE));
+    return $userid;
+}
+
+function logOutUser(){
+    //if user is not admin
+    if(!$_SESSION["admin"]){
+       unset($_SESSION["userid"]);
+       unset($_SESSION["email"]);
+       unset($_SESSION["cart"]);
+    }
+    //if user is admin
+    else{
+       unset($_SESSION["userid"]);
+       unset($_SESSION["email"]);
+       unset($_SESSION["admin"]);
+       unset($_SESSION["cart"]);
+    }
+    session_destroy();
+}
+
+
 ?>

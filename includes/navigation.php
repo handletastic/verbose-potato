@@ -15,6 +15,8 @@
         <div class="collapse navbar-collapse" id="main-menu">
             <?php
             //render navigation group 1 (main navigation)
+            //the function getNavigationItems() is in functions.php file which is included before this file
+            //in head.php (that's why it's not included in this file)
             $nav = getNavigationItems(0,$dbconnection,$tablename,1,"navbar-right main-nav");
             echo implode("",$nav);
             ?>
@@ -39,6 +41,8 @@
     <div class="container-fluid">
         <?php
         //if user is logged in, show their username or email address.
+        //the function getNavigationItems() is in functions.php file which is included before this file
+        //in head.php (that's why it's not included in this file)
         if($_SESSION["userid"]){
             $userid = $_SESSION["userid"];
             echo "<span class=\"navbar-text navbar-left user-greeting\">".
