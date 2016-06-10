@@ -90,8 +90,9 @@
     font-weight: 200;
     color:red;
 }
-.product-button-bar .qty{
-   max-width: 60px; 
+.qty{
+   max-width: 60px;
+   display:inline;
 }
 .buy-btn i,.wish-btn i{
     padding-right:5px;
@@ -125,4 +126,15 @@
     text-decoration: line-through;
     font-weight: 200;
     color:#999999;
+}
+
+.quantity{
+    margin-left:5px;
+}
+
+.shoppingcart-view .product-image{
+    width:100%;
+}
+.shoppingcart-view .price{
+    font-size:22px;
 }

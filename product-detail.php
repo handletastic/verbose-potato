@@ -4,7 +4,7 @@ include("includes/head.php");
 <main class="main">
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-8 col-md-offset-1">
                 <h2>
                     <?php echo $sectionname;?>
                 </h2>
@@ -24,15 +24,18 @@ include("includes/head.php");
                  //get images for this product
                  $images = getProductImages($dbconnection,$id);
             ?>
-           <div class="col-md-6 gallery">
+           <div class="col-md-8 gallery">
               <?php
+                  $i=0;
                  foreach($images as $img){
-                    echo "<img class='product-image' src=products/".$img['file'].">";
+                    $i++;
+                    $imageid = "product-image-".$i;
+                    echo "<img id='".$imageid."' class='product-image' src=products/".$img['file'].">";
                  }
               }
               ?>
            </div>
-           <div class="col-md-6">
+           <div class="col-md-4">
               <?php
                   $name = $product["name"];
                   $description = $product["description"];
@@ -50,6 +53,15 @@ include("includes/head.php");
                      echo "<p class=\"dollar price normal-price\">$price</p>";
                   }
                   //buttons
+                  echo "<div class=\"store-detail-buttons\">
+                  <form class=\"form-inline\">
+                    <button class=\"btn btn-default buy-btn\" data-id=\"$id\">
+                    <i class=\"fa fa-shopping-bag\"></i><span class=\"hidden-sm\">Buy It</span></button>
+                    <input class=\"form-control qty\" type=\"number\" value=\"1\">
+                    <button class=\"btn btn-default wish-btn\" data-id=\"$id\">
+                    <i class=\"fa fa-heart\"></i><span class=\"hidden-sm\">Fave It</span></button>
+                    </form>
+                  </div>";
                   
               ?>
            </div>

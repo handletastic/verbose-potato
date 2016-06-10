@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once("../includes/dbconnection.php");
+include_once("../includes/functions.php");
 //session token
 $token = $_SESSION["token"];
 //store errors and error messages
@@ -19,7 +20,7 @@ if(count($_POST)>0){
         returnErrorMessage($data,$errors,1,"session id does not match");
     }
     //sanitize the data ie remove any illegal characters
-    $clean_email = filter_var($email,FILTER_VALIDATE_EMAIL);
+    $clean_email = filter_var($email,FILTER_SANITIZE_EMAIL);
     //validate the email address
     if(filter_var($clean_email,FILTER_VALIDATE_EMAIL)){
         //check the email against database if true then email already used
@@ -36,6 +37,8 @@ if(count($_POST)>0){
         else{
             //if all else is good, create the user
             addNewUser($email,$password,$dbconnection);
+            //create user session
+            $_SESSION["userid"]=$userid;
         }
     }
     else{
@@ -68,7 +71,9 @@ function addNewUser($email,$password,$connection){
     //hash password
     $hashed_password = password_hash($password,PASSWORD_DEFAULT);
     //generate date for the creation of the account
+    $date = new DateTime("now", new DateTimeZone('Australia/Sydney') );
     $createdate = date("Y-m-d H:i:s");
+    //$createdate = generateDateTime();
     //generate id for the user
     $userid = generateUserId();
     
@@ -76,14 +81,14 @@ function addNewUser($email,$password,$connection){
     if($connection->query($query)){
         //if account creation is a success send the success message
         $data["success"]=true;
+        $data["email"]=$email;
         $data["message"]="user account created";
         echo returnData($data,$errors);
-        $connection->close();
     }
     else{
         returnErrorMessage($data,$errors,6,"user creation failed");
-        $connection->close();
     }
+    $connection->close();
 }
 //function to return data to ajax script
 function returnData($data,$errors){
@@ -110,9 +115,9 @@ function returnErrorMessage($data,$errors,$code,$message){
     exit();
 }
 //generate a unique user id
-function generateUserId(){
-    $prefix = "user";
-    $userid = md5(uniqid($prefix,TRUE));
-    return $userid;
-}
+// function generateUserId(){
+//     $prefix = "user";
+//     $userid = md5(uniqid($prefix,TRUE));
+//     return $userid;
+// }
 ?>

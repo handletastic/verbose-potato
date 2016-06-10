@@ -61,6 +61,20 @@ include("includes/head.php");
             <div class="col-md-10 store-products">
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                    <?php
+                    echo "<p>".$content[1]['title']."</p>";
+                    ?>
+                </h3>
+                <p>
+                    <?php
+                    echo "<p>".$content[1]['content']."</p>";
+                    ?>
+                </p>
+            </div>
+        </div>
     </div>
 </main>
 <?php include("includes/footer.php");?>

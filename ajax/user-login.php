@@ -20,7 +20,7 @@ if(count($_POST)>0){
         //in the query and auth could fail if any character is removed 
         //in the process
         $clean_email = filter_var($email,FILTER_SANITIZE_EMAIL);
-        $query = "SELECT email,userid,password,active,admin FROM users WHERE email='$clean_email'";
+        $query = "SELECT email,userid,password,active,admin,lastactivity FROM users WHERE email='$clean_email'";
         $result = $dbconnection->query($query);
         if($result->num_rows>0){
             //create variables from database data
@@ -31,17 +31,47 @@ if(count($_POST)>0){
             }
             //verify password
             if(password_verify($password,$dbdata["password"])){
-                //set data for last login
-                insertUserLoginDate($dbdata["email"],$dbconnection);
-                //update user activity column to prevent immediate logout
-                
                 //create session variable
                 $_SESSION["userid"]=$dbdata["userid"];
+                $_SESSION["email"]=$dbdata["email"];
+                //check cart and tempuserid, in case user has added items to cart
+                if($_SESSION["cart"] && $_SESSION["tempuserid"]){
+                    $userid = $_SESSION["userid"];
+                    $tempuserid = $_SESSION["tempuserid"];
+                    //transfer ownership of the cart to the logged in user
+                    //by updating the userid and temp columns
+                    $updatecartquery = "UPDATE shoppingcart 
+                    SET userid='$userid' WHERE userid='$tempuserid'";
+                    $dbconnection->query($updatecartquery);
+                    //destroy the tempid
+                    unset($_SESSION["tempuserid"]);
+                    //destroy the cart
+                    unset($_SESSION["cart"]);
+                    //recreate the cart from the database
+                    $_SESSION["cart"] = array();
+                    $getcartquery = "SELECT productid 
+                    FROM shoppingcart WHERE userid='$userid' AND checkedout=false";
+                    $result = $dbconnection->query($getcartquery);
+                    if($result->num_rows > 0){
+                        while($row = $result->fetch_assoc()){
+                            $product = $row["productid"];
+                            $cartitem = array("userid"=>$userid,"productid"=>$product);
+                            array_push($_SESSION["cart"],$cartitem);
+                        }
+                    }
+                    
+                }
                 if($dbdata["admin"]){
                     $_SESSION["admin"] = 1;
                     $data["admin"] = 1;
                 }
-                logActivity($dbconnection);
+                 //set data for last login
+                insertUserLoginDate($dbdata["email"],$dbconnection);
+                //update user activity column to prevent immediate logout
+                if(checkSessionAge($dbconnection,3000,true)>3000){
+                    logActivity($dbconnection);
+                }
+                $data["email"]= $dbdata["email"];
                 $data["success"] = true;
                 echo returnData($data,$errors);
             }
@@ -92,6 +122,7 @@ function returnErrorMessage($data,$errors,$code,$message){
     6=user creation failed
     7=authentication failed
     8=account is inactive
+    9=database error
     */
     $errors["code"] = $code;
     echo returnData($data,$errors);
