@@ -1,8 +1,8 @@
 <?php
 $dbhost="localhost";
 $dbname="test";
-$dbuser="johannesmu";
-$dbpass="";
+$dbuser="root";
+$dbpass="root";
 $dbconnection = mysqli_connect($dbhost,$dbuser,$dbpass,$dbname);
 if(!$dbconnection){
     //if there is an error show the error code
